@@ -5,6 +5,8 @@ class UserProfiles extends CI_Controller{
         $this->load->model('UserProfile');
         $this->load->model('User');
         header('Content-Type: Application/json');
+        header("Access-Control-Allow-Origin: *");
+
     }
     public function index(){
         echo json_encode($this->UserProfile->getAllProfiles());
