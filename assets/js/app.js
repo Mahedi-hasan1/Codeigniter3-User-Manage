@@ -1,10 +1,11 @@
 new Vue({
     el: '#app',
     data: {
-        message: "Vue 2 is now running!",
+        baseUrl:"http://192.168.26.71/codeigniter3/index.php",
+        message: "User Management!",
 		users: [],
         showForm: false,
-        newUser: {
+        curUser: {
             name: "",
             email: ""
         },
@@ -14,7 +15,7 @@ new Vue({
     },
     methods: {
         getUsers() {
-            axios.get('http://192.168.26.71/codeigniter3/index.php/users/')
+            axios.get(`${this.baseUrl}/users/`)
                 .then(response => {
                     console.log(response.data)
                     this.users = response.data;
@@ -29,24 +30,24 @@ new Vue({
         },
         openAddForm() {
             this.showForm = true;
-            this.newUser = { id:null, name:"", email:"" };
+            this.curUser = { id:null, name:"", email:"" };
         },
         closeForm() {
             this.showForm = false;
         },
-        editUser(id) {
+        editUser(user) {
             //console.log(id);
-           axios.post(`http://192.168.26.71/codeigniter3/index.php/users/update/${id}`)
-            .then(res => {
-                this.newUser = {...res.data}; // populate form for update
-                this.showForm = true;
-            })
-            .catch(err => console.error("Error fetching user for edit:", err)); 
+            this.curUser = {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            };
+            this.showForm = true;
         },
         saveUser() {
-            if(this.newUser.id){
+            if(this.curUser.id){
             // Update user
-                axios.post(`http://192.168.26.71/codeigniter3/index.php/users/update/${this.newUser.id}`, this.newUser)
+                axios.post(`${this.baseUrl}/users/update/${this.curUser.id}`, this.curUser)
                     .then(() => {
                         this.showForm = false;
                         this.getUsers();
@@ -54,7 +55,7 @@ new Vue({
                     .catch(err => console.error("Error updating user:", err));
             } else {
                 // Create user
-                axios.post("http://192.168.26.71/codeigniter3/index.php/users/create", this.newUser)
+                axios.post("${this.baseUrl}/users/create", this.curUser)
                     .then(() => {
                         this.showForm = false;
                         this.getUsers();
@@ -64,18 +65,41 @@ new Vue({
         },
         deleteUser(id){
             if(confirm("Are you sure to delete this user?")){
-                axios.post(`http://192.168.26.71/codeigniter3/index.php/users/delete/${id}`)
+                axios.post(`${this.baseUrl}/users/delete/${id}`)
                     .then(()=> this.getUsers())
                     .catch(err => console.error(err));
             }
         },
-        viewProfile(id){
-            axios.get(`http://192.168.26.71/codeigniter3/index.php/userprofiles/getbyuserid/${id}`)
+        viewProfile(userId){
+            this.profile = { id: null};
+            this.curUser = {
+                id: userId,
+            };
+            this.showProfile = true;
+            console.log("user id ", userId);
+            axios.get(`${this.baseUrl}/userprofiles/getbyuserid/${userId}`)
             .then(res => {
-                this.profile = res.data;
-                this.showProfile = true;
+                console.log("profile response data: ", res.data);
+                if(res.data && res.data.profile.id){
+                    this.profile = res.data.profile;
+                } else {
+                    this.profile = { id: null, bio: '', address: '' };
+                }
+             //console.log("profile data: ", this.profile);
+
             })
             .catch(err => console.error("Error fetching profile:", err));
+        },
+        addProfile(){
+            //this.profile = {user_id : this.curUser.id};
+            this.profile.user_id = this.curUser.id;
+            console.log("add profile data: ", this.profile);
+            axios.post("${this.baseUrl}/userprofiles/create", this.profile)
+            .then(() => {
+                        this.showProfile = false;
+                        //this.getUsers();
+                    })
+            .catch(err => console.error("Error adding profile:", err));
         },
         closeProfile() {
             this.showProfile = false;

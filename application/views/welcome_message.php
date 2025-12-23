@@ -17,34 +17,53 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<hr>
 			<div id="app">
 				<h2>{{ message }}</h2>
-				<button @click="getUsers">Load Users</button>
-    			<button @click="openAddForm">Add User</button>
-				<ul v-if="users.length">
-					<li v-for="user in users" :key="user.id" @click="selectUser(user.id)"
-      					:class="{selected: selectedUserId === user.id}">
-						<strong>{{ user.name }}</strong> - {{ user.email }}
-						<span v-if="selectedUserId === user.id" class="actions">
-							<button @click.stop="editUser(user.id)">Edit</button>
-							<button @click.stop="deleteUser(user.id)">Delete</button>
-							<button @click.stop="viewProfile(user.id)">Profile</button>
-						</span>
-					</li>
-				</ul>
+				<button @click="getUsers" style="padding: 6px 12px; font-size: 16px; margin-right: 10px;">Load Users</button>
+    			<button @click="openAddForm" style="padding: 6px 12px; font-size: 16px; margin-bottom: 20px;">Add User</button>
+				<table v-if="users.length" border="1" cellpadding="4" cellspacing="1" width="50%">
+					<thead>
+						<tr>
+							<th>ID</th>	
+							<th>Name</th>
+							<th>Email</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="user in users" :key="user.id">
+							<td>{{ user.id }}</td>
+							<td>{{ user.name }}</td>
+							<td>{{ user.email }}</td>
+							<td>
+								<button @click="editUser(user)">Edit</button>
+								<button @click="deleteUser(user.id)">Delete</button>
+								<button @click="viewProfile(user.id)">Profile</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 				<p v-else>No users loaded yet.</p>
-				<div v-if="showForm" class="form-box">
-					<h3>{{ newUser.id ? 'Edit User' : 'Add User' }}</h3>
-					<input type="text" v-model="newUser.name" placeholder="Name">
-					<input type="email" v-model="newUser.email" placeholder="Email">
-					<button @click="saveUser">{{ newUser.id ? 'Update' : 'Save' }}</button>
+
+				<div v-if="showForm" class="form-box" style="">
+					<h3>{{ curUser.id ? 'Edit User' : 'Add User' }}</h3>
+					<input type="text" v-model="curUser.name" placeholder="Name">
+					<input type="email" v-model="curUser.email" placeholder="Email">
+					<button @click="saveUser">{{ curUser.id ? 'Update' : 'Save' }}</button>
 					<button @click="closeForm">Cancel</button>
 				</div>
 
 				<div v-if="showProfile" class="modal">
-					<h3>Profile</h3>
-					<p><strong>Name:</strong> {{ profile.name }}</p>
-					<p><strong>Email:</strong> {{ profile.email }}</p>
-					<p><strong>Other Info:</strong> {{ profile.other_info }}</p>
-					<button @click="closeProfile">Close</button>
+					<h3>{{profile.id ? 'Profile' :'Add Profile'}}</h3>
+					<div v-if="profile.id">	
+						<p><strong>Bio:</strong> {{ profile.bio }}</p>
+						<p><strong>Address:</strong> {{ profile.address }}</p>
+						<button @click="closeProfile">Close</button>
+					</div>
+					<div v-else>
+						<input type="text" v-model="profile.bio" placeholder="Bio">
+						<input type="text" v-model="profile.address" placeholder="Address">
+						<button @click="addProfile">Save</button>
+						<button @click="closeProfile">Cancel</button>
+					</div>
 				</div>
 			</div>
 		<hr>
