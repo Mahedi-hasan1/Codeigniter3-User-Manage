@@ -55,7 +55,7 @@ new Vue({
                     .catch(err => console.error("Error updating user:", err));
             } else {
                 // Create user
-                axios.post("${this.baseUrl}/users/create", this.curUser)
+                axios.post(`${this.baseUrl}/users/create`, this.curUser)
                     .then(() => {
                         this.showForm = false;
                         this.getUsers();
@@ -94,7 +94,7 @@ new Vue({
             //this.profile = {user_id : this.curUser.id};
             this.profile.user_id = this.curUser.id;
             console.log("add profile data: ", this.profile);
-            axios.post("${this.baseUrl}/userprofiles/create", this.profile)
+            axios.post(`${this.baseUrl}/userprofiles/create`, this.profile)
             .then(() => {
                         this.showProfile = false;
                         //this.getUsers();
